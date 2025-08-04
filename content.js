@@ -1,9 +1,9 @@
 /**
  * ERP CAPTCHA Solver Pro
  * Professional CAPTCHA auto-solver with 95%+ accuracy
- * 
+ * Now powered by Tesseract.js v5!
  * @author Ayaan
- * @version 2.0
+ * @version 3
  * @license MIT
  */
 
@@ -72,110 +72,113 @@
     }
 
     toastContainer.appendChild(toast);
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.style.animation = 'slideIn 0.3s ease-out reverse';
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 3000);
+    if (type !== 'processing') {
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
   };
 
+  // --- Main CAPTCHA processing function ---
   const processCaptcha = async () => {
     try {
       if (!img.src || !img.src.includes('data:')) return;
 
       showStatus("Processing CAPTCHA...", "processing");
 
-      const base64 = img.src.split(",")[1];
-      const binary = atob(base64);
-      const array = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-      const blob = new Blob([array], { type: "image/png" });
-      const imageUrl = URL.createObjectURL(blob);
-
       const image = new Image();
-      image.src = imageUrl;
+      image.src = img.src;
 
       image.onload = async () => {
+        let worker;
         try {
           const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          canvas.width = image.width;
-          canvas.height = image.height;
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          const width = image.width;
+          const height = image.height;
+          canvas.width = width;
+          canvas.height = height;
           ctx.drawImage(image, 0, 0);
 
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imgData.data;
-
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i], g = data[i + 1], b = data[i + 2];
-            
-            const isGreenish = g > r && g > b && g > 100;
-            const isReddish = r > g && r > b && r > 100;
-            const isBluish = b > r && b > g && b > 100;
-            const isColorful = isGreenish || isReddish || isBluish;
-            
-            if (isColorful) {
-              data[i] = data[i + 1] = data[i + 2] = 255;
-            }
+          let imgData = ctx.getImageData(0, 0, width, height);
+          let pixelData = imgData.data;
+          
+          // --- STEP 1: Thresholding ---
+          const darknessThreshold = 80;
+          for (let i = 0; i < pixelData.length; i += 4) {
+              const r = pixelData[i], g = pixelData[i+1], b = pixelData[i+2];
+              const isBlack = r < darknessThreshold && g < darknessThreshold && b < darknessThreshold;
+              pixelData[i] = pixelData[i + 1] = pixelData[i + 2] = isBlack ? 0 : 255;
           }
-
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i], g = data[i + 1], b = data[i + 2];
-            const brightness = (r + g + b) / 3;
-
-            if (brightness > 180) {
-              data[i] = data[i + 1] = data[i + 2] = 255;
-            } else {
-              data[i] = data[i + 1] = data[i + 2] = 0;
-            }
-          }
-
-          ctx.putImageData(imgData, 0, 0);
-
-          const result = await Tesseract.recognize(canvas.toDataURL(), "eng", {
-            logger: () => {},
-            config: {
-              tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-              tessedit_pageseg_mode: 7,
-            }
-          });
-
-          let text = result.data.text.trim().replace(/\s/g, "");
-
-          if (text.length < 5) {
-            const retryResult = await Tesseract.recognize(canvas.toDataURL(), "eng", {
-              logger: () => {},
-              config: {
-                tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-                tessedit_pageseg_mode: 8,
+          
+          // --- STEP 2: Thickening (Dilation) ---
+          let thickenedData = new Uint8ClampedArray(pixelData.length);
+          for (let i = 0; i < pixelData.length; i += 4) {
+              thickenedData[i+3] = 255;
+              if (pixelData[i] === 0) {
+                  thickenedData[i] = thickenedData[i+1] = thickenedData[i+2] = 0;
+                  continue;
               }
-            });
-            text = retryResult.data.text.trim().replace(/\s/g, "");
+              let isNeighborBlack = false;
+              const x = (i / 4) % width;
+              const y = Math.floor((i / 4) / width);
+              for (let j = -1; j <= 1; j++) {
+                  for (let k = -1; k <= 1; k++) {
+                      if (j === 0 && k === 0) continue;
+                      const nX = x + k, nY = y + j;
+                      if (nX >= 0 && nX < width && nY >= 0 && nY < height) {
+                          if (pixelData[(nY * width + nX) * 4] === 0) {
+                              isNeighborBlack = true;
+                              break;
+                          }
+                      }
+                  }
+                  if (isNeighborBlack) break;
+              }
+              thickenedData[i] = thickenedData[i+1] = thickenedData[i+2] = isNeighborBlack ? 0 : 255;
           }
+          pixelData = thickenedData;
 
-          text = text
-            .replace(/[^A-Z0-9]/g, "")
-            .replace(/[@]/g, "A")
-            .replace(/[)]/g, "D")
-            .replace(/["']/g, "")
-            .replace(/([A-Z])7([A-Z])/g, "$1Z$2")
-            .replace(/^7([A-Z])/g, "Z$1")
-            .replace(/([A-Z])7$/g, "$1Z")
-            .replace(/([A-Z])1([A-Z])/g, "$1I$2")
-            .replace(/^1([A-Z])/g, "I$1")
-            .replace(/([A-Z])1$/g, "$1I")
-            .replace(/([A-Z])0([A-Z])/g, "$1O$2")
-            .replace(/^0([A-Z])/g, "O$1")
-            .replace(/([A-Z])0$/g, "$1O")
-            .replace(/([0-9])Z([0-9])/g, "$17$2")
-            .replace(/([0-9])I([0-9])/g, "$11$2")
-            .replace(/([0-9])O([0-9])/g, "$10$2");
+          // --- STEP 3: Median Filter for Noise Reduction ---
+          let finalPixelData = new Uint8ClampedArray(pixelData.length);
+          for (let i = 0; i < pixelData.length; i += 4) {
+              const x = (i / 4) % width;
+              const y = Math.floor((i / 4) / width);
+              let neighbors = [];
+              for (let j = -1; j <= 1; j++) {
+                  for (let k = -1; k <= 1; k++) {
+                      const nX = x + k, nY = y + j;
+                      if (nX >= 0 && nX < width && nY >= 0 && nY < height) {
+                          neighbors.push(pixelData[(nY * width + nX) * 4]);
+                      }
+                  }
+              }
+              neighbors.sort((a, b) => a - b);
+              const medianValue = neighbors[Math.floor(neighbors.length / 2)];
+              finalPixelData[i] = finalPixelData[i+1] = finalPixelData[i+2] = medianValue;
+              finalPixelData[i+3] = 255;
+          }
+          ctx.putImageData(new ImageData(finalPixelData, width, height), 0, 0);
 
-          if (text.length === 5 && /[A-Z]{4}[0-9]/.test(text)) {
-            text = text.replace(/([A-Z]{4})([0-9])/, "$1J$2");
-          } else if (text.length === 5 && /[A-Z]{3}[0-9]{2}/.test(text)) {
-            text = text.replace(/([A-Z]{3})([0-9]{2})/, "$1J$2");
+          // --- Tesseract.js v5 Worker Implementation ---
+          worker = await Tesseract.createWorker();
+          await worker.loadLanguage('eng');
+          await worker.initialize('eng');
+          await worker.setParameters({
+            tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+            tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
+          });
+          
+          const { data: { text: ocrText } } = await worker.recognize(canvas);
+          
+          // --- FINAL CLEANUP: Relies purely on OCR of the cleaned image ---
+          let text = ocrText.trim().replace(/[\s\W_]+/g, "");
+          
+          if (text.length > 6) {
+              text = text.substring(0, 6);
           }
 
           input.value = text;
@@ -185,18 +188,21 @@
           input.dispatchEvent(new Event('change', { bubbles: true }));
 
         } catch (error) {
+          console.error("CAPTCHA processing failed:", error);
           showStatus("Processing failed", "error");
         } finally {
-          URL.revokeObjectURL(imageUrl);
+          if (worker) {
+            await worker.terminate();
+          }
         }
       };
 
       image.onerror = () => {
         showStatus("Image load failed", "error");
-        URL.revokeObjectURL(imageUrl);
       };
 
     } catch (error) {
+      console.error("Outer CAPTCHA processing failed:", error);
       showStatus("Processing failed", "error");
     }
   };

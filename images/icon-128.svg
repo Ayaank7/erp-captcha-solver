@@ -1,0 +1,32 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad128" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="128" height="128" fill="url(#grad128)" rx="20"/>
+  
+  <!-- Main CAPTCHA frame -->
+  <rect x="16" y="24" width="96" height="56" fill="none" stroke="white" stroke-width="4" rx="6"/>
+  
+  <!-- CAPTCHA Text -->
+  <text x="64" y="58" font-family="monospace" font-size="18" font-weight="bold" fill="white" text-anchor="middle">A8X4K3Z</text>
+  
+  <!-- Large success checkmark -->
+  <circle cx="64" cy="96" r="16" fill="#10B981"/>
+  <path d="M54 96 L61 103 L74 89" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Decorative circuit pattern -->
+  <g stroke="white" stroke-width="1" fill="none" opacity="0.2">
+    <path d="M20 20 L30 20 L30 30"/>
+    <path d="M98 20 L108 20 L108 30"/>
+    <path d="M20 98 L30 98 L30 108"/>
+    <path d="M98 98 L108 98 L108 108"/>
+  </g>
+  
+  <!-- Brand text -->
+  <text x="64" y="118" font-family="Arial" font-size="10" font-weight="bold" fill="white" text-anchor="middle">CAPTCHA SOLVER</text>
+</svg>

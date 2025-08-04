@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "ERP CAPTCHA Solver Pro",
-  "version": "2.0",
-  "description": "Auto-solves ERP CAPTCHAs with 95%+ accuracy. Educational tool for students.",
+  "version": "3.0.0",
+  "description": "Professional CAPTCHA auto-solver with 95%+ accuracy for educational purposes. Powered by advanced OCR technology. © 2025 Ayaan",
   "author": "Ayaan",
+  "homepage_url": "https://github.com/Ayaank7/erp-captcha-solver",
   "permissions": ["activeTab"],
   
   "host_permissions": [
@@ -18,7 +19,10 @@
     }
   ],
   "icons": {
-    "16": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzQyODVGNCIvPgo8dGV4dCB4PSI4IiB5PSIxMSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QUk8L3RleHQ+Cjwvc3ZnPgo=",
-    "48": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iIzQyODVGNCIvPgo8dGV4dCB4PSIyNCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFJPC90ZXh0Pgo8L3N2Zz4K"
-  }
+    "16": "images/icon-16.svg",
+    "48": "images/icon-48.svg",
+    "128": "images/icon-128.svg"
+  },
+  "minimum_chrome_version": "88",
+  "short_name": "CAPTCHA Solver Pro"
 }
