@@ -164,9 +164,7 @@
           ctx.putImageData(new ImageData(finalPixelData, width, height), 0, 0);
 
           // --- Tesseract.js v5 Worker Implementation ---
-          worker = await Tesseract.createWorker();
-          await worker.loadLanguage('eng');
-          await worker.initialize('eng');
+          worker = await Tesseract.createWorker('eng');
           await worker.setParameters({
             tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
             tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
