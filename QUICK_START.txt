@@ -1,0 +1,34 @@
+🔧 QUICK SETUP GUIDE 🔧
+
+SUPER EASY - Just 3 steps!
+
+STEP 1: Open "manifest.json" with Notepad
+  → Right-click manifest.json → Open with → Notepad
+
+STEP 2: Find and replace your domain
+  → Look for: "https://your-erp-domain.com/*"
+  → Replace with your actual ERP website
+  
+  Examples:
+  ✅ "https://erp.college.edu/*"
+  ✅ "https://portal.university.ac.in/*"
+  ✅ "https://student.institute.org/*"
+  
+  ⚠️ Keep the "/*" at the end!
+
+STEP 3: Save and install
+  → Save the file (Ctrl+S)
+  → Install extension in Chrome
+  → Done! 🎉
+
+NEED HELP?
+  → Check SETUP.md for detailed instructions
+  → Email: csayaan221@gmail.com
+
+WHAT DOES IT DO?
+  → Automatically solves ERP CAPTCHAs
+  → Works in under 2 seconds
+  → Shows nice notifications
+  → 95%+ accuracy!
+
+⚠️ IMPORTANT: Educational use only! Use responsibly!
