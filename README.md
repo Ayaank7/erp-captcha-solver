@@ -26,7 +26,7 @@ This is a complete overhaul of the extension's core logic, moving from the legac
 ### Step 1: Configure Your College Domain
 1.  **Open the `manifest.json` file** (e.g., with Notepad or VS Code).
 2.  **Find the `host_permissions` section**.
-3.  **Replace `"https://uuerp.uudoon.in/*"` with your ERP website's domain**. Examples:
+3.  **Replace `"https://erp.yourcollege.edu/*"` with your ERP website's domain**. Examples:
     ```json
     "host_permissions": [
       "[https://erp.yourcollege.edu/](https://erp.yourcollege.edu/)*"
